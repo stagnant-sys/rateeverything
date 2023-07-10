@@ -7,7 +7,7 @@ import Reviews from "./release_page/Reviews";
 import AddReview from "./release_page/AddReview";
 import Tracklist from "./release_page/Tracklist";
 
-import { getReleaseByID, getUniqueRelease } from "../functions";
+import { getReleaseByID, getUniqueRelease, fetchReleaseFromID } from "../functions";
 
 import "../App.css"
 
@@ -56,7 +56,9 @@ const ReleasePage = (props) => {
   }
 
   const fetchDataByID = async (albumID) => {
-    const data = await getReleaseByID(albumID);
+    const data = await fetchReleaseFromID('0');
+    //const data = await getReleaseByID(albumID);
+    console.log(data);
     const sortedRatings = data.ratings.sort((a, b) => (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0);
     setRatings(sortedRatings);
     setImagePath(data.imagePath);
@@ -75,19 +77,6 @@ const ReleasePage = (props) => {
       setReviewUI(true)
     }
   }
-
-  /*const organizeRatings = () => {
-    const copy = props.ratings;
-    let index;
-    copy.map((el, i) => {
-      if (el.username === props.username) {
-        index = i;
-      }
-    })
-    const personal = copy.splice(index, 1);
-    setPersonalRating(personal);
-    setOthersRatings(copy);
-  }*/
 
   useEffect(() => {
     fetchDataByID(+urlParams.releaseID);
@@ -122,10 +111,10 @@ const ReleasePage = (props) => {
       <div className="release_right-col">
         <ReleaseInfo
           id={`Album${release.albumID}`}
-          title={release.release}
+          title={release.title}
           artist={release.artist}
-          type="Album"
-          date={release.year}
+          type={release.type}
+          date={release.date}
           generalRating={release.average}
           ratingsNumber={ratings.length}
           genres={genres}

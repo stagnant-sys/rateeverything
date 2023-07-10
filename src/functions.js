@@ -183,30 +183,6 @@ const submitRelease = async (artist, release, year, tracks, genres, ratings, rev
   })
 }
 
-const submitReleaseByID = async (artist, title, date, tracks, genres, ratings, reviews, imagePath, username) => {
-  const coll = collection(db, 'releases');
-  const snapshot = await getCountFromServer(coll);
-  const albumID = snapshot.data().count.toString();
-  const originalHistory = {
-    author: username,
-    date: format(new Date(), 'dd/LL/yyyy at HH:mm'),
-    changes: ['Original submission']
-  }
-  await setDoc(doc(db, 'releases', albumID), {
-    artist: artist, 
-    title: title,
-    date: date,
-    tracks: tracks,
-    ratings: ratings,
-    reviews: reviews,
-    genres: genres,
-    albumID: albumID,
-    average: '',
-    imagePath: imagePath,
-    editHistory: [originalHistory],
-  });
-}
-
 const updateRelease = async (artist, albumID, release, year, tracks, genres, username, imagePath) => {
   // Get artist document
   const artistRef = doc(db, 'artists', artist);
@@ -610,6 +586,42 @@ const searchRelease = async (prompt) => {
   return searchResult;
 }
 
+// AFTER DATABASE STRUCTURE CHANGE
+const submitReleaseByID = async (artist, title, date, tracks, genres, ratings, reviews, imagePath, username) => {
+  const coll = collection(db, 'releases');
+  const snapshot = await getCountFromServer(coll);
+  const albumID = snapshot.data().count.toString();
+  const originalHistory = {
+    author: username,
+    date: format(new Date(), 'dd/LL/yyyy at HH:mm'),
+    changes: ['Original submission']
+  }
+  await setDoc(doc(db, 'releases', albumID), {
+    artist: artist, 
+    title: title,
+    date: date,
+    tracks: tracks,
+    ratings: ratings,
+    reviews: reviews,
+    genres: genres,
+    albumID: albumID,
+    average: '',
+    imagePath: imagePath,
+    editHistory: [originalHistory],
+  });
+}
+
+const fetchReleaseFromID = async (releaseID) => {
+  const docRef = doc(db, 'releases', releaseID);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
+  } else {
+    console.log("No such document!");
+  }
+}
+
+
 export { 
   userFirestoreSetup,
   getAllUsernames,
@@ -644,4 +656,5 @@ export {
   searchRelease,
 
   submitReleaseByID,
+  fetchReleaseFromID,
 };

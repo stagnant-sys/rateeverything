@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from "react";
-import { getUserInfo, getArtistsList, getAllReleases, getPersonalRatings, getPersonalReviews, submitReleaseByID } from "../functions";
+import { getUserInfo, getArtistsList, getAllReleases, getPersonalRatings, getPersonalReviews, submitReleaseByID, fetchReleaseFromID } from "../functions";
 import { Link, useParams } from "react-router-dom";
 import ContentContainer from "./profile_page/ContentDisplay";
 
@@ -83,6 +83,7 @@ const ProfilePage = (props) => {
         
           <div className="profile_avatar"><Link to="/profile/avatar">{avatarDisplay()}</Link></div>
         <button onClick={() => submitReleaseByID('Metallica', 'Test', '2002', [{number: 1, title: 'Test track', time: '0:22'}], ['Thrash Metal'], [], [], '', 'Test')}>SEND</button>
+        <button onClick={() => fetchReleaseFromID('0')}>FETCH</button>
       </div>
       
           <div>{artistsList.map((el) => {
