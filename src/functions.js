@@ -670,9 +670,9 @@ const linkRatingToUserByID = async (username, releaseID, rating, date) => {
   const data = docSnap.data();
   const localCopy = data;
   const localRatings = data.ratings;
-  const releaseData = await fetchReleaseFromID(releaseID.toString());
   const existingRating = localRatings.find((obj) => obj.release.releaseID === releaseID);
   if (existingRating === undefined && +rating !== 0) { 
+    const releaseData = await fetchReleaseFromID(releaseID.toString());
     localRatings.push({
       release: {
         releaseID: releaseData.albumID,
@@ -698,10 +698,62 @@ const linkRatingToUserByID = async (username, releaseID, rating, date) => {
     existingRating.rating = rating;
     existingRating.date = date;
   }
-  console.log(localCopy);
   await updateDoc(userRef, localCopy);
 }
 
+const sendReviewByID = async (releaseID, username, userID, review) => {
+  // Get the release from ID
+  const docRef = doc(db, 'releases', releaseID);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const localCopy = data;
+  const localReviews = localCopy.reviews;
+  const reviewDate = format(new Date(), 'dd MMM yy');
+  // if user has already rated the release, replace the rating
+  console.log(localReviews);
+  const userReviewObject = localReviews.find((obj) => obj.userID === userID);
+  if (!userReviewObject) {
+    localReviews.push({
+      username: username,
+      userID: userID,
+      review: review,
+      date: reviewDate,
+      reviewsScore: 0,
+    })
+  } else {
+    userReviewObject.review = review;
+    userReviewObject.date = reviewDate;
+  }
+  await updateDoc(docRef, localCopy);
+  linkReviewToUserByID(username, releaseID, review, reviewDate);
+}
+
+const linkReviewToUserByID = async (username, releaseID, review, date) => {
+  const userRef = doc(db, 'users', username);
+  const docSnap = await getDoc(userRef);
+  const data = docSnap.data();
+  const localCopy = data;
+  const localReviews = data.reviews;
+  const existingReview = localReviews.find((obj) => obj.release.releaseID === releaseID);
+  if (!existingReview) {
+    const releaseData = await fetchReleaseFromID(releaseID.toString());
+    localReviews.push({
+      reviewDate: date,
+      review: review,
+      author: username,
+      release: {
+        releaseID: releaseData.albumID,
+        artist: releaseData.artist,
+        title: releaseData.title,
+        imagePath: releaseData.imagePath,
+      },
+    })
+  } else {
+    existingReview.review = review;
+    existingReview.date = date;
+  }
+  await updateDoc(userRef, localCopy);
+}
 
 export { 
   userFirestoreSetup,
@@ -739,4 +791,5 @@ export {
   submitReleaseByID,
   fetchReleaseFromID,
   updateReleaseRatingByID,
+  sendReviewByID,
 };

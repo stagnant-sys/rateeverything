@@ -1,6 +1,6 @@
 import React from 'react';
 import { getAuth } from "firebase/auth";
-import { sendReview, getReleaseByID } from '../../functions';
+import { sendReview, getReleaseByID, sendReviewByID } from '../../functions';
 
 const AddReview = (props) => {
   const addNewReview = async (e) => {
@@ -8,7 +8,8 @@ const AddReview = (props) => {
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     const release = await getReleaseByID(props.releaseID);
-    sendReview(release, getAuth().currentUser.displayName, getAuth().currentUser.displayName, data.reviewText);
+    //sendReview(release, getAuth().currentUser.displayName, getAuth().currentUser.displayName, data.reviewText);
+    sendReviewByID(props.releaseID, getAuth().currentUser.displayName, getAuth().currentUser.displayName, data.reviewText)
   }
 
   return (
