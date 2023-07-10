@@ -7,6 +7,12 @@
 ## Priorités :
 
 ### Core Fonctionnalités
+
+## Database restructure to do:
+O Migrer les artistes sur un système d'ID
+O Edition d'albums et d'artistes
+O Profile page : charger liste des notes et reviews en prenant les infos albums depuis leur ID (infos à jour)
+
 X Ajouter images albums et profil
 O Ajouter image de profil dans les header et sur les pages albums
 O RESTRUCTURER BASE DE DONNEES: stocker les infos albums sous leur ID, pour pouvoir y faire référence et obtenir directement des infos à jour (les albums mentionnés dans les listes, ratings, reviews... le seraient sous la forme d'array d'IDs, puis les infos seraient récoltées en effectuant une boucle sur ces IDs).
