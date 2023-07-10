@@ -82,7 +82,7 @@ const ProfilePage = (props) => {
         </div>
         
           <div className="profile_avatar"><Link to="/profile/avatar">{avatarDisplay()}</Link></div>
-        <button onClick={() => submitReleaseByID('Metallica', 'Test', '2002', [{number: 1, title: 'Test track', time: '0:22'}], ['Thrash Metal'], [], [], '', 'Test')}>SEND</button>
+        <button onClick={() => submitReleaseByID('Metallica', 'Test', '2002', 'Album', [{number: 1, title: 'Test track', time: '0:22'}], ['Thrash Metal'], [], [], '', 'Test')}>SEND</button>
         <button onClick={() => fetchReleaseFromID('0')}>FETCH</button>
       </div>
       

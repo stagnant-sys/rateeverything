@@ -1,5 +1,5 @@
 import {React, useState, useEffect} from "react";
-import { getReleaseByID, updateReleaseRating } from "../../functions";
+import { getReleaseByID, updateReleaseRating, updateReleaseRatingByID } from "../../functions";
 import { getAuth } from "firebase/auth";
 import "C:/Users/paysa/Documents/GitHub/rateeverything/src/App.css";
 
@@ -10,7 +10,8 @@ const Rating = (props) => {
     e.preventDefault();
     const release = await getReleaseByID(props.releaseID);
     let rating = document.getElementById('rating').value;
-    updateReleaseRating(release, getAuth().currentUser.displayName, getAuth().currentUser.uid, rating);
+    updateReleaseRatingByID(props.releaseID, getAuth().currentUser.displayName, getAuth().currentUser.uid, rating);
+    //updateReleaseRating(release, getAuth().currentUser.displayName, getAuth().currentUser.uid, rating);
   }
 
   return (

@@ -587,7 +587,7 @@ const searchRelease = async (prompt) => {
 }
 
 // AFTER DATABASE STRUCTURE CHANGE
-const submitReleaseByID = async (artist, title, date, tracks, genres, ratings, reviews, imagePath, username) => {
+const submitReleaseByID = async (artist, title, date, type, tracks, genres, ratings, reviews, imagePath, username) => {
   const coll = collection(db, 'releases');
   const snapshot = await getCountFromServer(coll);
   const albumID = snapshot.data().count.toString();
@@ -600,6 +600,7 @@ const submitReleaseByID = async (artist, title, date, tracks, genres, ratings, r
     artist: artist, 
     title: title,
     date: date,
+    type: type,
     tracks: tracks,
     ratings: ratings,
     reviews: reviews,
@@ -619,6 +620,86 @@ const fetchReleaseFromID = async (releaseID) => {
   } else {
     console.log("No such document!");
   }
+}
+
+const updateReleaseRatingByID = async (releaseID, username, userID, rating) => {
+  // Get the release from ID
+  const docRef = doc(db, 'releases', releaseID);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  // Use local copy before sending the data back to modify nested ratings array
+  const localCopy = data;
+  const localRatings = localCopy.ratings;
+  const ratingDate = format(new Date(), 'dd MMM yy');
+  // if user has already rated the release, replace the rating
+  const userRatingObject = localRatings.find((obj) => obj.userID === userID);
+  if (!userRatingObject && +rating !== 0) {
+    localRatings.push({
+      username: username,
+      userID: userID,
+      rating: +rating,
+      date: ratingDate,
+    })
+  } else if (+rating === 0) {
+    // if the rating is 0, find the rating and remove it from the array
+    let index = 0;
+    let targetIndex = undefined;
+    for (const rating of localRatings) {
+      if (rating.userID !== userID) {
+        index++;
+      } else {
+        targetIndex = index;
+      }
+    }
+    localRatings.splice(targetIndex, 1);
+  } else {
+    userRatingObject.rating = +rating;
+    userRatingObject.date = ratingDate;
+  }
+  // Update average rating
+  const ratingsSum = localRatings.reduce((acc, el) => {return acc + el.rating;}, 0);
+  const averageRating = +(ratingsSum / localRatings.length).toFixed(2);
+  localCopy.average = averageRating;
+  await updateDoc(docRef, localCopy);
+  linkRatingToUserByID(username, releaseID, rating, ratingDate);
+}
+
+const linkRatingToUserByID = async (username, releaseID, rating, date) => {
+  const userRef = doc(db, 'users', username);
+  const docSnap = await getDoc(userRef);
+  const data = docSnap.data();
+  const localCopy = data;
+  const localRatings = data.ratings;
+  const releaseData = await fetchReleaseFromID(releaseID.toString());
+  const existingRating = localRatings.find((obj) => obj.release.releaseID === releaseID);
+  if (existingRating === undefined && +rating !== 0) { 
+    localRatings.push({
+      release: {
+        releaseID: releaseData.albumID,
+        artist: releaseData.artist,
+        title: releaseData.title,
+        imagePath: releaseData.imagePath,
+      },
+      rating: rating,
+      date: date,
+    })
+  } else if (+rating === 0) {
+    let index = 0;
+    let targetIndex = undefined;
+    for (const rating of localRatings) {
+      if (rating.release.releaseID !== releaseID) {
+        index++;
+      } else {
+        targetIndex = index;
+      }
+    }
+    localRatings.splice(targetIndex, 1);
+  } else {
+    existingRating.rating = rating;
+    existingRating.date = date;
+  }
+  console.log(localCopy);
+  await updateDoc(userRef, localCopy);
 }
 
 
@@ -643,7 +724,7 @@ export {
   getArtist,
   getArtistByID,
   getReleases, 
-  getAllReleases, 
+  getAllReleases,
   getAllReleasesLength, 
   getUniqueRelease, 
   getReleaseByID,
@@ -657,4 +738,5 @@ export {
 
   submitReleaseByID,
   fetchReleaseFromID,
+  updateReleaseRatingByID,
 };

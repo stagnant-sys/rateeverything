@@ -56,9 +56,8 @@ const ReleasePage = (props) => {
   }
 
   const fetchDataByID = async (albumID) => {
-    const data = await fetchReleaseFromID('0');
+    const data = await fetchReleaseFromID(albumID.toString());
     //const data = await getReleaseByID(albumID);
-    console.log(data);
     const sortedRatings = data.ratings.sort((a, b) => (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0);
     setRatings(sortedRatings);
     setImagePath(data.imagePath);
