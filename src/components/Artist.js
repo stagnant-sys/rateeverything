@@ -1,8 +1,10 @@
 import { React, useState, useEffect } from "react";
 import ArtistInfo from "./artist_page/ArtistInfo";
 import ReleasesList from "./artist_page/ReleasesList";
-import { getArtist } from "../functions";
+import { getArtist, fetchReleaseFromID } from "../functions";
 import { Link, useParams } from "react-router-dom";
+import { getDoc } from "firebase/firestore";
+import { DocumentReference } from "firebase/firestore";
 
 
 const ArtistPage = (props) => {
@@ -21,6 +23,7 @@ const ArtistPage = (props) => {
     setReleases(sortedReleases);
     setArtistImage(bestRelease[0].imagePath);
     setGenres(data.genres.join(', '));
+    const 
   };
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const ArtistPage = (props) => {
           />
       </div>
       <div className='artist-page_contributions'>
-          <h2>Contributions</h2>
+          <h2 onClick={() => console.log(artist.ref)}>Contributions</h2>
           <ContributionsContainer userStatus={props.userStatus} />
         </div>
     </div>
